@@ -1,7 +1,7 @@
 (set-env!
  :source-paths #{"src/cljs"}
  :resource-paths #{"html"}
- :dependencies '[[org.clojure/clojure "1.8.0"]
+ :dependencies '[[org.clojure/clojure "1.9.0"]
                  [org.clojure/clojurescript "1.10.339"]
                  [adzerk/boot-cljs "2.1.4"]
                  [pandeiro/boot-http "0.8.3"]
