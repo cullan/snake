@@ -1,0 +1,22 @@
+* {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+    height: 100%;
+    margin: 0
+}
+
+.board-container {
+    display: flex;
+    flex-flow: column;
+    height: 100%;
+}
+
+.board {
+    flex: 1 1 auto;
+}
