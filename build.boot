@@ -20,9 +20,8 @@
   "Launch dev environment"
   []
   (comp
-   (serve :dir "target")
+   (serve)
    (watch)
    (reload)
    (cljs-repl)
-   (cljs)
-   (target :dir #{"target"})))
+   (cljs)))
