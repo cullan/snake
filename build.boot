@@ -9,7 +9,8 @@
                  [pandeiro/boot-http "0.8.3"]
                  [nrepl "0.4.5" :scope "test"]
                  [cider/piggieback "0.3.10" :scope "test"]
-                 [weasel "0.7.0" :scope "test"]])
+                 [weasel "0.7.0" :scope "test"]
+                 [reagent "0.8.1"]])
 
 (require '[adzerk.boot-cljs :refer [cljs]]
          '[pandeiro.boot-http :refer [serve]]
