@@ -4,8 +4,6 @@
             [snake.components :refer [board]]
             [reagent.core :as reagent]))
 
-(enable-console-print!)
-
 (defn init []
   (reagent/render-component [board game-state]
                             (by-id "app")))

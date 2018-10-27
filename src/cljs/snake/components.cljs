@@ -1,8 +1,6 @@
 (ns snake.components
   (:require [reagent.core :as r]))
 
-(enable-console-print!)
-
 (def snake-head-color "#366")
 (def snake-tail-color "#9FF")
 
