@@ -1,9 +1,11 @@
 (ns snake.core
   (:require [snake.dom :refer [by-id]]
-            [snake.components.board :refer [board]]
-            [reagent.core :as r :refer [render atom]]))
+            [snake.game :refer [game-state]]
+            [snake.components :refer [board]]
+            [reagent.core :as reagent]))
 
 (enable-console-print!)
 
-(render [board 50 50]
-        (by-id "app"))
+(defn init []
+  (reagent/render-component [board game-state]
+                            (by-id "app")))
