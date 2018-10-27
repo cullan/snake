@@ -1,6 +1,6 @@
 (set-env!
  :source-paths #{"src/cljs"}
- :resource-paths #{"html"}
+ :resource-paths #{"resources"}
  :dependencies '[[org.clojure/clojure "1.9.0"]
                  [org.clojure/clojurescript "1.10.339"]
                  [adzerk/boot-cljs "2.1.4"]
@@ -17,12 +17,26 @@
          '[adzerk.boot-reload :refer [reload]]
          '[adzerk.boot-cljs-repl :refer [cljs-repl start-repl]])
 
-(deftask dev
-  "Launch dev environment"
-  []
-  (comp
-   (serve)
-   (watch)
-   (reload)
-   (cljs-repl)
-   (cljs)))
+(deftask build []
+  (comp (notify)
+        (cljs)))
+
+(deftask run []
+  (comp (serve)
+        (watch)
+        (cljs-repl)
+        (reload)
+        (build)))
+
+(deftask production []
+  (task-options! cljs {:optimizations :advanced})
+  identity)
+
+(deftask development []
+  (task-options! cljs {:optimizations :none}
+                 reload {:on-jsload 'snake.core/init})
+  identity)
+
+(deftask dev []
+  (comp (development)
+        (run)))
