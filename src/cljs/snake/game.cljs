@@ -38,6 +38,44 @@
   (reagent/render-component [components/board game-state]
                             (dom/by-id "app")))
 
+(defn valid-fruit-position?
+  "Fruit must fit on the board and not overlap other fruit or the snake."
+  [game-state [x y :as position]]
+  (let [[height width] (:board-dimensions @game-state)
+        fruit (:fruit @game-state)
+        snake (:snake @game-state)]
+    (and (< x width)
+         (< y height)
+         (not (some #{position} fruit))
+         (not (some #{position} snake)))))
+
+(defn board-full?
+  "Detect the unlikely case that the board is full."
+  [game-state]
+  (let [[height width] (:board-dimensions @game-state)
+        snake (:snake @game-state)
+        fruit (:fruit @game-state)
+        num-positions (* height width)
+        filled (+ (count snake) (count fruit))]
+    (< num-positions filled)))
+
+(defn fruit-positions
+  "Make a lazy seq of possible fruit positions."
+  [game-state]
+  (let [[height width] (:board-dimensions @game-state)]
+    (filter #(valid-fruit-position? game-state %)
+            (repeatedly #(vector (rand-int width)
+                                 (rand-int height))))))
+
+(defn add-fruit!
+  "Add n pieces of fruit to the game."
+  [game-state n]
+  (let [fruit (:fruit @game-state)]
+    (when-not (board-full? game-state)
+    (swap! game-state
+           assoc
+           :fruit (conj fruit (first (fruit-positions game-state)))))))
+
 (defn position-in-direction [[x y] direction]
   (case direction
     :up [x (- y 1)]
