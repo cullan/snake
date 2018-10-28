@@ -24,6 +24,7 @@
 (def initial-game-state
   {:board-dimensions [50 50]
    :snake [[25 25] [25 24] [25 23] [24 23] [24 22]]
+   :fruit [[25 30]]
    :last-direction :down
    :input-direction :down
    :growing false
