@@ -1,6 +1,10 @@
 (ns snake.game
   (:require [clojure.spec.alpha :as s :include-macros true]
-            [reagent.core :as r]))
+            [reagent.core :as reagent]
+            [snake.components :as components]
+            [snake.dom :as dom]))
+
+(enable-console-print!)
 
 (s/def ::board-dimensions (s/tuple int? int?))
 (s/def ::position (s/tuple int? int?))
@@ -9,21 +13,29 @@
 (s/def ::last-direction ::direction)
 (s/def ::input-direction ::direction)
 (s/def ::growing boolean?)
+(s/def ::running boolean?)
 (s/def ::game-state-spec (s/keys :req-un [::board-dimensions
                                           ::snake
                                           ::last-direction
                                           ::input-direction
-                                          ::growing]))
+                                          ::growing
+                                          ::running]))
 
 (def initial-game-state
   {:board-dimensions [50 50]
    :snake [[25 25] [25 24] [25 23] [24 23] [24 22]]
    :last-direction :down
    :input-direction :down
-   :growing false})
+   :growing false
+   :running false
+   :timer nil})
 
-(def game-state (r/atom initial-game-state))
+(defonce game-state (reagent/atom initial-game-state))
 (set-validator! game-state (partial s/valid? ::game-state-spec))
+
+(defn render []
+  (reagent/render-component [components/board game-state]
+                            (dom/by-id "app")))
 
 (defn position-in-direction [[x y] direction]
   (case direction
@@ -65,13 +77,69 @@
       (swap! game-state
              assoc :snake (into [next-pos] (pop snake))))))
 
+(defn leaving-board? [[x y] [height width]]
+  (or (>= x width)
+      (< x 0)
+      (>= y height)
+      (< y 0)))
+
 (defn game-over?
-  "If the head is in the same position as a part of the tail ya blew it."
+  "If the head is in the same position as a part of the tail ya blew it.
+  Also don't try to leave the game board."
   [game-state]
-  (let [[head & tail] (:snake @game-state)]
-    (boolean (some #{head} tail))))
+  (let [[head & tail] (:snake @game-state)
+        dimensions (:board-dimensions @game-state)]
+    (or (boolean (some #{head} tail))
+        (leaving-board? head dimensions))))
+
+(declare tick!)
+
+(defn clear-timer []
+  (if-let [timer (:timer @game-state)]
+    (js/clearInterval timer)))
+
+(defn start-game []
+  (swap! game-state
+         assoc
+         :running true
+         :timer (js/setInterval tick! 500)))
+
+(defn stop-game []
+  (clear-timer)
+  (reset! game-state initial-game-state))
+
+(defn pause-game []
+  (clear-timer)
+  (swap! game-state
+         assoc
+         :running false
+         :timer nil))
+
+(defn toggle-pause []
+  (if (:running @game-state)
+    (pause-game)
+    (start-game)))
+
+(defn game-over []
+  (stop-game)
+  (js/alert "Game over!"))
 
 (defn tick! []
-  (move-snake! game-state))
+  (if (game-over? game-state)
+    (game-over)
+    (move-snake! game-state)))
 
-(js/setInterval tick! 500)
+(def key-names
+  {38 :up
+   40 :down
+   37 :left
+   39 :right
+   13 :enter
+   32 :space})
+
+(defn handle-keydown [e]
+  (when-let [key-name (key-names (.-keyCode e))]
+    (.preventDefault e)
+    (if (#{:enter :space} key-name)
+      (toggle-pause)
+      (swap! game-state assoc :input-direction key-name))))

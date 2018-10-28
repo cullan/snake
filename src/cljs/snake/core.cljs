@@ -1,9 +1,13 @@
 (ns snake.core
-  (:require [snake.dom :refer [by-id]]
-            [snake.game :refer [game-state]]
-            [snake.components :refer [board]]
-            [reagent.core :as reagent]))
+  (:require [snake.game :as game]))
+
+(enable-console-print!)
+
+(defonce bind-key-handler
+  (.addEventListener js/document "keydown" game/handle-keydown))
+
+(defn on-reload []
+  (game/stop-game))
 
 (defn init []
-  (reagent/render-component [board game-state]
-                            (by-id "app")))
+  (game/render))
