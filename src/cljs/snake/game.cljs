@@ -6,7 +6,7 @@
 
 (enable-console-print!)
 
-(def number-of-fruit 5)
+(def number-of-food 5)
 (def game-speed 300)
 
 (s/def ::board-dimensions (s/tuple int? int?))
@@ -27,7 +27,7 @@
 (def initial-game-state
   {:board-dimensions [30 30]
    :snake [[15 15]]
-   :fruit []
+   :food []
    :last-direction :down
    :input-direction :down
    :growing false
@@ -41,15 +41,15 @@
   (reagent/render-component [components/board game-state]
                             (dom/by-id "app")))
 
-(defn valid-fruit-position?
-  "Fruit must fit on the board and not overlap other fruit or the snake."
+(defn valid-food-position?
+  "Food must fit on the board and not overlap other food or the snake."
   [game-state [x y :as position]]
   (let [[height width] (:board-dimensions @game-state)
-        fruit (:fruit @game-state)
+        food (:food @game-state)
         snake (:snake @game-state)]
     (and (< x width)
          (< y height)
-         (not (some #{position} fruit))
+         (not (some #{position} food))
          (not (some #{position} snake)))))
 
 (defn board-full?
@@ -57,43 +57,43 @@
   [game-state]
   (let [[height width] (:board-dimensions @game-state)
         snake (:snake @game-state)
-        fruit (:fruit @game-state)
+        food (:food @game-state)
         num-positions (* height width)
-        filled (+ (count snake) (count fruit))]
+        filled (+ (count snake) (count food))]
     (< num-positions filled)))
 
-(defn possible-fruit-positions
-  "Make a lazy seq of possible fruit positions."
+(defn possible-food-positions
+  "Make a lazy seq of possible food positions."
   [game-state]
   (let [[height width] (:board-dimensions @game-state)]
-    (filter #(valid-fruit-position? game-state %)
+    (filter #(valid-food-position? game-state %)
             (repeatedly #(vector (rand-int width)
                                  (rand-int height))))))
 
-(defn add-fruit-piece!
-  "Add a piece of fruit to the board."
+(defn add-food-piece!
+  "Add a piece of food to the board."
   [game-state]
-  (let [fruit (:fruit @game-state)]
+  (let [food (:food @game-state)]
     (when-not (board-full? game-state)
     (swap! game-state
            assoc
-           :fruit (conj fruit (first (possible-fruit-positions game-state)))))))
+           :food (conj food (first (possible-food-positions game-state)))))))
 
-(defn add-fruit!
-  "Add n pieces of fruit to the game."
+(defn add-food!
+  "Add n pieces of food to the game."
   [game-state n]
   (dotimes [_ n]
-    (add-fruit-piece! game-state)))
+    (add-food-piece! game-state)))
 
-(defn eating-fruit? [game-state]
+(defn eating-food? [game-state]
   (let [[head] (:snake @game-state)
-        fruit (:fruit @game-state)]
-    (boolean (some #{head} fruit))))
+        food (:food @game-state)]
+    (boolean (some #{head} food))))
 
-(defn remove-fruit-at-head! [game-state]
+(defn remove-food-at-head! [game-state]
   (let [[head] (:snake @game-state)
-        fruit (:fruit @game-state)]
-    (swap! game-state assoc :fruit (remove #{head} fruit))))
+        food (:food @game-state)]
+    (swap! game-state assoc :food (remove #{head} food))))
 
 (defn position-in-direction [[x y] direction]
   (case direction
@@ -157,7 +157,7 @@
     (js/clearInterval timer)))
 
 (defn start-game []
-  (add-fruit! game-state number-of-fruit)
+  (add-food! game-state number-of-food)
   (swap! game-state
          assoc
          :running true
@@ -187,10 +187,10 @@
   (if (game-over? game-state)
     (game-over)
     (do
-      (when (eating-fruit? game-state)
+      (when (eating-food? game-state)
         (swap! game-state assoc :growing true)
-        (remove-fruit-at-head! game-state)
-        (add-fruit-piece! game-state))
+        (remove-food-at-head! game-state)
+        (add-food-piece! game-state))
       (move-snake! game-state))))
 
 (def key-names

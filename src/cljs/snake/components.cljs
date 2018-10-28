@@ -4,10 +4,10 @@
 
 (def scale 10)
 (def snake-part-size 8)
-(def fruit-piece-size 4)
+(def food-piece-size 4)
 (def snake-head-color "#366")
 (def snake-tail-color "#9FF")
-(def fruit-color "#C00")
+(def food-color "#C00")
 
 (defn- translate [coord]
   (+ (* coord scale) 1))
@@ -29,15 +29,15 @@
      (for [[x y] tail]
        ^{:key (list-key "snake" x y)} [snake-part [x y] snake-tail-color])]))
 
-(defn fruit-piece [[x y]]
-  [:circle {:cx (+ (translate x) fruit-piece-size)
-            :cy (+ (translate y) fruit-piece-size)
-            :r (str fruit-piece-size)
-            :fill fruit-color}])
+(defn food-piece [[x y]]
+  [:circle {:cx (+ (translate x) food-piece-size)
+            :cy (+ (translate y) food-piece-size)
+            :r (str food-piece-size)
+            :fill food-color}])
 
-(defn fruit [locations]
+(defn food [locations]
   [:g (for [[x y] @locations]
-        ^{:key (list-key "fruit" x y)} [fruit-piece [x y]])])
+        ^{:key (list-key "food" x y)} [food-piece [x y]])])
 
 (defn board [game-state]
   (let [dimensions (r/cursor game-state [:board-dimensions])
@@ -46,5 +46,5 @@
      [:svg {:class "board"
             :view-box (str "0 0 " (* width scale) " " (* height scale))}
       [:rect {:width "100%" :height "100%" :fill "#777"}]
-      [fruit (r/cursor game-state [:fruit])]
+      [food (r/cursor game-state [:food])]
       [snake (r/cursor game-state [:snake])]]]))
