@@ -6,6 +6,9 @@
 
 (enable-console-print!)
 
+(def number-of-fruit 5)
+(def game-speed 300)
+
 (s/def ::board-dimensions (s/tuple int? int?))
 (s/def ::position (s/tuple int? int?))
 (s/def ::snake (s/coll-of ::position :min-count 1))
@@ -22,9 +25,9 @@
                                           ::running]))
 
 (def initial-game-state
-  {:board-dimensions [50 50]
-   :snake [[25 25] [25 24] [25 23] [24 23] [24 22]]
-   :fruit [[25 30]]
+  {:board-dimensions [30 30]
+   :snake [[15 15]]
+   :fruit []
    :last-direction :down
    :input-direction :down
    :growing false
@@ -59,7 +62,7 @@
         filled (+ (count snake) (count fruit))]
     (< num-positions filled)))
 
-(defn fruit-positions
+(defn possible-fruit-positions
   "Make a lazy seq of possible fruit positions."
   [game-state]
   (let [[height width] (:board-dimensions @game-state)]
@@ -67,14 +70,30 @@
             (repeatedly #(vector (rand-int width)
                                  (rand-int height))))))
 
-(defn add-fruit!
-  "Add n pieces of fruit to the game."
-  [game-state n]
+(defn add-fruit-piece!
+  "Add a piece of fruit to the board."
+  [game-state]
   (let [fruit (:fruit @game-state)]
     (when-not (board-full? game-state)
     (swap! game-state
            assoc
-           :fruit (conj fruit (first (fruit-positions game-state)))))))
+           :fruit (conj fruit (first (possible-fruit-positions game-state)))))))
+
+(defn add-fruit!
+  "Add n pieces of fruit to the game."
+  [game-state n]
+  (dotimes [_ n]
+    (add-fruit-piece! game-state)))
+
+(defn eating-fruit? [game-state]
+  (let [[head] (:snake @game-state)
+        fruit (:fruit @game-state)]
+    (boolean (some #{head} fruit))))
+
+(defn remove-fruit-at-head! [game-state]
+  (let [[head] (:snake @game-state)
+        fruit (:fruit @game-state)]
+    (swap! game-state assoc :fruit (remove #{head} fruit))))
 
 (defn position-in-direction [[x y] direction]
   (case direction
@@ -138,10 +157,11 @@
     (js/clearInterval timer)))
 
 (defn start-game []
+  (add-fruit! game-state number-of-fruit)
   (swap! game-state
          assoc
          :running true
-         :timer (js/setInterval tick! 500)))
+         :timer (js/setInterval tick! game-speed)))
 
 (defn stop-game []
   (clear-timer)
@@ -166,7 +186,12 @@
 (defn tick! []
   (if (game-over? game-state)
     (game-over)
-    (move-snake! game-state)))
+    (do
+      (when (eating-fruit? game-state)
+        (swap! game-state assoc :growing true)
+        (remove-fruit-at-head! game-state)
+        (add-fruit-piece! game-state))
+      (move-snake! game-state))))
 
 (def key-names
   {38 :up
