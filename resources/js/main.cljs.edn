@@ -1,3 +1,4 @@
 {:require [snake.core]
  :init-fns [snake.core/init]
+ :boot-reload {:on-jsload snake.core/on-reload}
  :compiler-options {:asset-path "js/main.out"}}

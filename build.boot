@@ -24,8 +24,8 @@
 (deftask run []
   (comp (serve)
         (watch)
-        (cljs-repl)
         (reload)
+        (cljs-repl)
         (build)))
 
 (deftask production []
@@ -33,8 +33,7 @@
   identity)
 
 (deftask development []
-  (task-options! cljs {:optimizations :none}
-                 reload {:on-jsload 'snake.core/init})
+  (task-options! cljs {:optimizations :none})
   identity)
 
 (deftask dev []

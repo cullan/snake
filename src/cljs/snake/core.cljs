@@ -7,7 +7,8 @@
   (.addEventListener js/document "keydown" game/handle-keydown))
 
 (defn on-reload []
-  (game/stop-game))
+  (game/stop-game)
+  (game/render))
 
 (defn init []
   (game/render))
