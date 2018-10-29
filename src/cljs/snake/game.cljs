@@ -32,7 +32,8 @@
    :input-direction :down
    :growing false
    :running false
-   :timer nil})
+   :timer nil
+   :first-turn? true})
 
 (defonce game-state (reagent/atom initial-game-state))
 (set-validator! game-state (partial s/valid? ::game-state-spec))
@@ -157,7 +158,9 @@
     (js/clearInterval timer)))
 
 (defn start-game []
-  (add-food! game-state number-of-food)
+  (when (:first-turn? @game-state)
+    (add-food! game-state number-of-food)
+    (swap! game-state assoc :first-turn? false))
   (swap! game-state
          assoc
          :running true
