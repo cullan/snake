@@ -15,6 +15,14 @@
 (defn- list-key [type x y]
   (string/join "-" [type x y]))
 
+(defn instructions []
+  [:p "Hit enter or space to begin. The arrow keys control the snake."])
+
+(defn header [game-state]
+  [:div.header
+   [:h4 "Snake Game"]
+   [instructions]])
+
 (defn snake-part [[x y] color]
   [:rect {:x (translate x)
           :y (translate y)
@@ -42,9 +50,13 @@
 (defn board [game-state]
   (let [dimensions (r/cursor game-state [:board-dimensions])
         [height width] @dimensions]
-    [:div {:class "board-container"}
-     [:svg {:class "board"
+    [:svg {:class "board"
             :view-box (str "0 0 " (* width scale) " " (* height scale))}
       [:rect {:width "100%" :height "100%" :fill "#777"}]
       [food (r/cursor game-state [:food])]
-      [snake (r/cursor game-state [:snake])]]]))
+      [snake (r/cursor game-state [:snake])]]))
+
+(defn app [game-state]
+  [:div.container
+   [header game-state]
+   [board game-state]])

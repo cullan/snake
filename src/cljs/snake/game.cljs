@@ -45,7 +45,7 @@
 (set-validator! game-state (partial s/valid? ::game-state-spec))
 
 (defn render []
-  (reagent/render-component [components/board game-state]
+  (reagent/render-component [components/app game-state]
                             (dom/by-id "app")))
 
 (defn valid-food-position?
