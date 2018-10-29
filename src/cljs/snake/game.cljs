@@ -16,17 +16,17 @@
 (s/def ::direction #{:up :down :left :right})
 (s/def ::last-direction ::direction)
 (s/def ::input-direction ::direction)
-(s/def ::growing boolean?)
-(s/def ::running boolean?)
-(s/def ::timer (s/or :not-running nil? :running int?))
+(s/def ::growing? boolean?)
+(s/def ::running? boolean?)
+(s/def ::timer (s/or :not-running nil? :running? int?))
 (s/def ::first-turn? boolean?)
 (s/def ::game-state-spec (s/keys :req-un [::board-dimensions
                                           ::snake
                                           ::food
                                           ::last-direction
                                           ::input-direction
-                                          ::growing
-                                          ::running
+                                          ::growing?
+                                          ::running?
                                           ::timer
                                           ::first-turn?]))
 
@@ -36,8 +36,8 @@
    :food []
    :last-direction :down
    :input-direction :down
-   :growing false
-   :running false
+   :growing? false
+   :running? false
    :timer nil
    :first-turn? true})
 
@@ -128,7 +128,7 @@
 
 (defn move-snake! [game-state]
   (let [[head & tail :as snake] (:snake @game-state)
-        growing? (:growing @game-state)
+        growing? (:growing? @game-state)
         valid-direction? (valid-input? game-state)
         direction-key (if valid-direction? :input-direction :last-direction)
         direction (direction-key @game-state)
@@ -138,7 +138,7 @@
       (swap! game-state
              assoc
              :snake (into [next-pos] snake)
-             :growing false)
+             :growing? false)
       (swap! game-state
              assoc :snake (into [next-pos] (pop snake))))))
 
@@ -169,7 +169,7 @@
     (swap! game-state assoc :first-turn? false))
   (swap! game-state
          assoc
-         :running true
+         :running? true
          :timer (js/setInterval tick! game-speed)))
 
 (defn stop-game []
@@ -180,11 +180,11 @@
   (clear-timer)
   (swap! game-state
          assoc
-         :running false
+         :running? false
          :timer nil))
 
 (defn toggle-pause []
-  (if (:running @game-state)
+  (if (:running? @game-state)
     (pause-game)
     (start-game)))
 
@@ -197,7 +197,7 @@
     (game-over)
     (do
       (when (eating-food? game-state)
-        (swap! game-state assoc :growing true)
+        (swap! game-state assoc :growing? true)
         (remove-food-at-head! game-state)
         (add-food-piece! game-state))
       (move-snake! game-state))))
