@@ -2,6 +2,10 @@
 
 A clone of the classic game Snake made with Clojurescript and Reagent.
 
+## Demo
+
+[Click me](https://springstead.me/projects/snake/demo/)
+
 ## Prerequisites
 
 You will need [Boot](http://boot-clj.com/) to build the project.
