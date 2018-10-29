@@ -12,17 +12,23 @@
 (s/def ::board-dimensions (s/tuple int? int?))
 (s/def ::position (s/tuple int? int?))
 (s/def ::snake (s/coll-of ::position :min-count 1))
+(s/def ::food (s/coll-of ::position))
 (s/def ::direction #{:up :down :left :right})
 (s/def ::last-direction ::direction)
 (s/def ::input-direction ::direction)
 (s/def ::growing boolean?)
 (s/def ::running boolean?)
+(s/def ::timer (s/or :not-running nil? :running int?))
+(s/def ::first-turn? boolean?)
 (s/def ::game-state-spec (s/keys :req-un [::board-dimensions
                                           ::snake
+                                          ::food
                                           ::last-direction
                                           ::input-direction
                                           ::growing
-                                          ::running]))
+                                          ::running
+                                          ::timer
+                                          ::first-turn?]))
 
 (def initial-game-state
   {:board-dimensions [20 20]
