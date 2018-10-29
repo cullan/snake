@@ -39,3 +39,8 @@
 (deftask dev []
   (comp (development)
         (run)))
+
+(deftask deploy []
+  (comp (production)
+        (build)
+        (target)))
