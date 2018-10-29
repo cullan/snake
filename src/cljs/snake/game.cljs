@@ -53,7 +53,7 @@
 
 (defn valid-food-position?
   "Food must fit on the board and not overlap other food or the snake."
-  [game-state [x y :as position]]
+  [[x y :as position]]
   (let [[height width] (:board-dimensions @game-state)
         food (:food @game-state)
         snake (:snake @game-state)]
@@ -64,7 +64,7 @@
 
 (defn board-full?
   "Detect the unlikely case that the board is full."
-  [game-state]
+  []
   (let [[height width] (:board-dimensions @game-state)
         snake (:snake @game-state)
         food (:food @game-state)
@@ -74,33 +74,33 @@
 
 (defn possible-food-positions
   "Make a lazy seq of possible food positions."
-  [game-state]
+  []
   (let [[height width] (:board-dimensions @game-state)]
-    (filter #(valid-food-position? game-state %)
+    (filter valid-food-position?
             (repeatedly #(vector (rand-int width)
                                  (rand-int height))))))
 
 (defn add-food-piece!
   "Add a piece of food to the board."
-  [game-state]
+  []
   (let [food (:food @game-state)]
-    (when-not (board-full? game-state)
+    (when-not (board-full?)
     (swap! game-state
            assoc
-           :food (conj food (first (possible-food-positions game-state)))))))
+           :food (conj food (first (possible-food-positions)))))))
 
 (defn add-food!
   "Add n pieces of food to the game."
-  [game-state n]
+  [n]
   (dotimes [_ n]
-    (add-food-piece! game-state)))
+    (add-food-piece!)))
 
-(defn eating-food? [game-state]
+(defn eating-food? []
   (let [[head] (:snake @game-state)
         food (:food @game-state)]
     (boolean (some #{head} food))))
 
-(defn remove-food-at-head! [game-state]
+(defn remove-food-at-head! []
   (let [[head] (:snake @game-state)
         food (:food @game-state)]
     (swap! game-state assoc :food (remove #{head} food))))
@@ -119,24 +119,24 @@
 
 (defn valid-input?
   "Did the user enter a valid direction to move?"
-  [game-state]
+  []
   (let [[head :as snake] (:snake @game-state)
         direction (:input-direction @game-state)
         position (position-in-direction head direction)]
     (valid-move? position snake)))
 
-(defn set-direction! [game-state valid?]
+(defn set-direction! [valid?]
   (if valid? (swap! game-state
                     assoc :last-direction (:input-direction @game-state))))
 
-(defn move-snake! [game-state]
+(defn move-snake! []
   (let [[head & tail :as snake] (:snake @game-state)
         growing? (:growing? @game-state)
-        valid-direction? (valid-input? game-state)
+        valid-direction? (valid-input?)
         direction-key (if valid-direction? :input-direction :last-direction)
         direction (direction-key @game-state)
         next-pos (position-in-direction head direction)]
-    (set-direction! game-state valid-direction?) ; flip input and last as needed
+    (set-direction! valid-direction?) ; flip input and last as needed
     (if growing?
       (swap! game-state
              assoc
@@ -154,7 +154,7 @@
 (defn game-over?
   "If the head is in the same position as a part of the tail ya blew it.
   Also don't try to leave the game board."
-  [game-state]
+  []
   (let [[head & tail] (:snake @game-state)
         dimensions (:board-dimensions @game-state)]
     (or (boolean (some #{head} tail))
@@ -168,7 +168,7 @@
 
 (defn start-game []
   (when (:first-turn? @game-state)
-    (add-food! game-state number-of-food)
+    (add-food! number-of-food)
     (swap! game-state assoc :first-turn? false))
   (swap! game-state
          assoc
@@ -197,15 +197,15 @@
     (js/alert (str "Game over! Your score is " score "."))))
 
 (defn tick! []
-  (if (game-over? game-state)
+  (if (game-over?)
     (game-over!)
     (do
-      (when (eating-food? game-state)
+      (when (eating-food?)
         (swap! game-state assoc :growing? true)
         (swap! game-state assoc :score (inc (:score @game-state)))
-        (remove-food-at-head! game-state)
-        (add-food-piece! game-state))
-      (move-snake! game-state))))
+        (remove-food-at-head!)
+        (add-food-piece!))
+      (move-snake!))))
 
 (def key-names
   {38 :up
