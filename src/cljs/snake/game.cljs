@@ -20,6 +20,7 @@
 (s/def ::running? boolean?)
 (s/def ::timer (s/or :not-running nil? :running? int?))
 (s/def ::first-turn? boolean?)
+(s/def ::score int?)
 (s/def ::game-state-spec (s/keys :req-un [::board-dimensions
                                           ::snake
                                           ::food
@@ -28,7 +29,8 @@
                                           ::growing?
                                           ::running?
                                           ::timer
-                                          ::first-turn?]))
+                                          ::first-turn?
+                                          ::score]))
 
 (def initial-game-state
   {:board-dimensions [20 20]
@@ -39,7 +41,8 @@
    :growing? false
    :running? false
    :timer nil
-   :first-turn? true})
+   :first-turn? true
+   :score 0})
 
 (defonce game-state (reagent/atom initial-game-state))
 (set-validator! game-state (partial s/valid? ::game-state-spec))
@@ -188,16 +191,18 @@
     (pause-game)
     (start-game)))
 
-(defn game-over []
-  (stop-game)
-  (js/alert "Game over!"))
+(defn game-over! []
+  (let [score (:score @game-state)]
+    (stop-game)
+    (js/alert (str "Game over! Your score is " score "."))))
 
 (defn tick! []
   (if (game-over? game-state)
-    (game-over)
+    (game-over!)
     (do
       (when (eating-food? game-state)
         (swap! game-state assoc :growing? true)
+        (swap! game-state assoc :score (inc (:score @game-state)))
         (remove-food-at-head! game-state)
         (add-food-piece! game-state))
       (move-snake! game-state))))

@@ -15,13 +15,18 @@
 (defn- list-key [type x y]
   (string/join "-" [type x y]))
 
+(defn score [score]
+  [:p (str "Score: " @score)])
+
 (defn instructions []
   [:p "Hit enter or space to begin. The arrow keys control the snake."])
 
 (defn header [game-state]
-  [:div.header
-   [:h4 "Snake Game"]
-   [instructions]])
+  (let [score-cursor (r/cursor game-state [:score])]
+    [:div.header
+     [:h4 "Snake Game"]
+     [score score-cursor]
+     [instructions]]))
 
 (defn snake-part [[x y] color]
   [:rect {:x (translate x)
