@@ -179,17 +179,10 @@
   (clear-timer)
   (reset! game-state initial-game-state))
 
-(defn pause-game []
-  (clear-timer)
-  (swap! game-state
-         assoc
-         :running? false
-         :timer nil))
-
-(defn toggle-pause []
-  (if (:running? @game-state)
-    (pause-game)
-    (start-game)))
+(defn maybe-start-game! []
+  (let [running? (:running? @game-state)]
+    (when-not running?
+      (start-game))))
 
 (defn game-over! []
   (let [score (:score @game-state)]
@@ -219,5 +212,5 @@
   (when-let [key-name (key-names (.-keyCode e))]
     (.preventDefault e)
     (if (#{:enter :space} key-name)
-      (toggle-pause)
+      (maybe-start-game!)
       (swap! game-state assoc :input-direction key-name))))
