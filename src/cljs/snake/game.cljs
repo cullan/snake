@@ -7,7 +7,7 @@
 (enable-console-print!)
 
 (def number-of-food 5)
-(def game-speed 300)
+(def game-speed 200)
 
 (s/def ::board-dimensions (s/tuple int? int?))
 (s/def ::position (s/tuple int? int?))
@@ -25,8 +25,8 @@
                                           ::running]))
 
 (def initial-game-state
-  {:board-dimensions [30 30]
-   :snake [[15 15]]
+  {:board-dimensions [20 20]
+   :snake [[10 10]]
    :food []
    :last-direction :down
    :input-direction :down
